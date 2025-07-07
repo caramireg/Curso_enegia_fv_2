@@ -10,6 +10,7 @@
         body { font-family: 'Inter', sans-serif; background-color: #f0f4f8; color: #333; line-height: 1.6; padding: 1rem; }
         .container { background-color: #ffffff; padding: 1.5rem 2rem; border-radius: 8px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); max-width: 1100px; margin: 2rem auto; }
         h1, h2, h3 { color: #1a237e; text-align: center; margin-bottom: 1.5rem; }
+        h1 { margin-bottom: 0.5rem; } /* Ajuste para el título principal */
         h2 { font-size: 1.25rem; margin-top: 1.5rem; color: #3f51b5; border-bottom: 1px solid #e0e0e0; padding-bottom: 0.5rem; }
         h3 { font-size: 1.1rem; color: #1a237e; margin-bottom: 0.8rem; padding-bottom: 0.3rem; border-bottom: 1px dashed #adb5bd; text-align: center;}
         label { display: block; margin-bottom: 0.4rem; font-weight: 600; color: #444; }
@@ -22,7 +23,8 @@
         button:disabled { background-color: #ccc; cursor: not-allowed; }
         .input-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.2rem; margin-bottom: 1.5rem; }
         .input-hint { margin-top: -0.6rem; font-size: 0.75rem; color: #6c757d; }
-        #results-table { width: 100%; border-collapse: collapse; margin-top: 1rem; overflow-x: auto; display: block; }
+        #results-table-wrapper { width: 100%; overflow-x: auto; }
+        #results-table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
         #results-table th, #results-table td { border: 1px solid #ddd; padding: 0.7rem; text-align: left; font-size: 0.85rem; white-space: nowrap; vertical-align: middle; }
         #results-table th { background-color: #3f51b5; color: white; font-weight: bold; position: sticky; top: 0; }
         #results-table tr.selected-row { background-color: #dbe4ff; }
@@ -48,7 +50,8 @@
             Volver a Controlador
         </a>
         <h1>Paso 4: Calculadora de Banco de Baterías</h1>
-        <p style="text-align: center; color: #64748b; margin-top: -1rem; margin-bottom: 1.5rem;">Encuentra configuraciones de baterías compatibles para tu sistema.</p>
+        <!-- CORRECCIÓN: Se eliminó el margen negativo para evitar la superposición -->
+        <p style="text-align: center; color: #64748b; margin-bottom: 1.5rem;">Encuentra configuraciones de baterías compatibles para tu sistema.</p>
 
         <div class="section inputs">
             <h2>Parámetros Requeridos</h2>
@@ -85,15 +88,16 @@
         <div id="results-section" class="section results hidden">
             <h2>Configuraciones de Baterías Compatibles</h2>
             <p class="input-hint" style="text-align:center;">Selecciona hasta 3 opciones para comparar. Se muestran configuraciones con 3 o menos strings en paralelo.</p>
-            <div id="results-output">
+            <!-- CORRECCIÓN: Se añadió un div para mejorar el scroll en móviles -->
+            <div id="results-table-wrapper">
                 <table id="results-table">
                     <thead>
                         <tr><th>Sel.</th><th>Modelo Batería</th><th>Tipo</th><th>Capacidad (Ah)</th><th>Ciclos</th><th>Serie</th><th>Paralelo</th><th>Total</th></tr>
                     </thead>
                     <tbody id="results-tbody"></tbody>
                 </table>
-                <button id="compare-selection-btn" class="hidden" disabled>Comparar Seleccionadas (10 años)</button>
             </div>
+            <button id="compare-selection-btn" class="hidden" disabled>Comparar Seleccionadas (10 años)</button>
             <div id="comparison-results-container" class="hidden"></div>
             <div id="final-actions-container"></div>
         </div>
@@ -105,6 +109,8 @@ document.addEventListener('DOMContentLoaded', () => {
         { model: "AGM 18Ah 12V", voltage: 12, ah_nominal: 18, dod_max: 0.5, ciclos: 800, type: "AGM", price: 320000 },
         { model: "AGM 100Ah 12V", voltage: 12, ah_nominal: 100, dod_max: 0.5, ciclos: 800, type: "AGM", price: 890000 },
         { model: "AGM 150Ah 12V", voltage: 12, ah_nominal: 150, dod_max: 0.5, ciclos: 800, type: "AGM", price: 1350000 },
+        { model: "AGM 250Ah 12V", voltage: 12, ah_nominal: 250, dod_max: 0.5, ciclos: 800, type: "AGM", price: 2100000 },
+        { model: "GEL 55Ah 12V", voltage: 12, ah_nominal: 55, dod_max: 0.5, ciclos: 1200, type: "GEL", price: 650000 },
         { model: "GEL 100Ah 12V", voltage: 12, ah_nominal: 100, dod_max: 0.5, ciclos: 1200, type: "GEL", price: 1150000 },
         { model: "GEL 200Ah 12V", voltage: 12, ah_nominal: 200, dod_max: 0.5, ciclos: 1200, type: "GEL", price: 2450000 },
         { model: "OPzS 300Ah 2V", voltage: 2, ah_nominal: 300, dod_max: 0.6, ciclos: 2500, type: "Estacionaria OPzS", price: 950000 },
@@ -117,7 +123,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const autonomyDaysInput = document.getElementById('autonomy-days');
     const systemVoltageSelect = document.getElementById('system-voltage');
     const calculateBtn = document.getElementById('calculate-btn');
-    const resultsSection = document.getElementById('results-section');
     const resultsTbody = document.getElementById('results-tbody');
     const errorMessageDiv = document.getElementById('error-message');
     const efficiencyInput = document.getElementById('efficiency');
@@ -155,7 +160,6 @@ document.addEventListener('DOMContentLoaded', () => {
         batteryData.forEach(battery => {
             if (systemVoltage % battery.voltage !== 0) return;
             const requiredSeries = systemVoltage / battery.voltage;
-            // CORRECCIÓN: Usar capacidad útil (Ah * DoD) para el cálculo de strings en paralelo
             const usableAh = battery.ah_nominal * battery.dod_max;
             if (usableAh <= 0) return;
             const requiredParallel = Math.ceil(requiredTotalAhCapacity / usableAh);
@@ -178,7 +182,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <td>${config.series}</td><td>${config.parallel}</td><td>${config.total}</td>`;
                 row.querySelector('input').addEventListener('change', (e) => handleBatterySelectionChange(e.target));
             });
-            resultsSection.classList.remove('hidden');
+            document.getElementById('results-section').classList.remove('hidden');
         } else {
             showError("No se encontraron configuraciones de baterías compatibles (se necesitarían más de 3 strings en paralelo).");
         }
@@ -188,9 +192,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const checkedBoxes = resultsTbody.querySelectorAll('input:checked');
         if (checkedBoxes.length > MAX_SELECTIONS) {
             checkbox.checked = false;
-            // Reemplazamos el alert con un mensaje en la UI
             showError(`Puedes seleccionar un máximo de ${MAX_SELECTIONS} configuraciones para comparar.`);
-            setTimeout(hideError, 3000); // Ocultar mensaje después de 3 segundos
+            setTimeout(hideError, 3000);
             return;
         }
         compareSelectionBtn.disabled = (checkedBoxes.length === 0);
@@ -215,7 +218,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const detailDiv = document.createElement('div');
         detailDiv.className = 'comparison-item';
         const lifespanYears = config.ciclos > 0 ? config.ciclos / 365 : 0;
-        // CORRECCIÓN: Usar Math.ceil para asegurar que se cubran los 10 años
         const replacementsNeeded = lifespanYears > 0 ? Math.ceil(10 / lifespanYears) - 1 : 0;
         const initialCost = config.price * config.total;
         const totalCost10Years = initialCost * (1 + replacementsNeeded);
@@ -234,14 +236,12 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
         comparisonResultsContainer.appendChild(detailDiv);
         
-        // Añadir event listener al nuevo botón
         detailDiv.querySelector('.select-for-report-btn').addEventListener('click', function() {
             const selectedConfig = JSON.parse(this.dataset.model);
             sessionStorage.setItem('selectedBatteryConfig', JSON.stringify(selectedConfig));
             sessionStorage.setItem('autonomyDays', autonomyDaysInput.value);
             sessionStorage.setItem('batteryEfficiency', efficiencyInput.value);
             
-            // Retroalimentación visual
             document.querySelectorAll('.comparison-item').forEach(item => item.style.border = '1px dashed #a5d6a7');
             this.closest('.comparison-item').style.border = '2px solid #2e7d32';
             showError(`¡Guardado! Se ha seleccionado la configuración "${selectedConfig.model}".`);
@@ -260,7 +260,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function clearResultsAndSelection() {
         hideError();
         resultsTbody.innerHTML = '';
-        resultsSection.classList.add('hidden');
+        document.getElementById('results-section').classList.add('hidden');
         comparisonResultsContainer.classList.add('hidden');
         finalActionsContainer.classList.add('hidden');
         compareSelectionBtn.classList.add('hidden');

@@ -73,10 +73,19 @@ document.addEventListener('DOMContentLoaded', () => {
         'mono_380': { name: "Monocristalino 380W", wattage: 380 },
         'mono_450': { name: "Monocristalino 450W", wattage: 450 },
         'mono_550': { name: "Monocristalino 550W", wattage: 550 },
-        'otro': { name: "Otro (Manual)", wattage: 0 }
+        'otro': { name: "Otro (Ingresar Manual)", wattage: 0 }
     };
+    
+    // --- LISTA COMPLETA DE UBICACIONES ---
     const locationData = {
-        "Bogotá (4.1)": 4.1, "Medellín (4.2)": 4.2, "Cali (4.3)": 4.3, "Barranquilla (5.4)": 5.4, "Manizales (4.2)": 4.2, "Otro": 0
+        "Arauca (4.7)": 4.7, "Armenia (4.2)": 4.2, "Barranquilla (5.4)": 5.4, "Bogotá D.C. (4.1)": 4.1, "Bucaramanga (4.5)": 4.5,
+        "Cali (4.3)": 4.3, "Cartagena (5.3)": 5.3, "Cúcuta (4.8)": 4.8, "Florencia (3.8)": 3.8, "Ibagué (4.0)": 4.0,
+        "Inírida (4.0)": 4.0, "Leticia (3.5)": 3.5, "Manizales (4.2)": 4.2, "Medellín (4.2)": 4.2, "Mitú (3.6)": 3.6,
+        "Mocoa (3.7)": 3.7, "Montería (5.0)": 5.0, "Neiva (4.5)": 4.5, "Pasto (3.8)": 3.8, "Pereira (4.2)": 4.2,
+        "Popayán (3.9)": 3.9, "Puerto Carreño (4.8)": 4.8, "Quibdó (3.3)": 3.3, "Riohacha (5.8)": 5.8,
+        "San Andrés Isla (5.5)": 5.5, "San José del Guaviare (3.9)": 3.9, "Santa Marta (5.3)": 5.3,
+        "Sincelejo (5.1)": 5.1, "Tunja (4.0)": 4.0, "Valledupar (5.2)": 5.2, "Villavicencio (4.0)": 4.0,
+        "Yopal (4.6)": 4.6, "Otro": 0
     };
 
     const consumptionInput = document.getElementById('consumption-value');
@@ -86,7 +95,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const resultsDiv = document.getElementById('calculator-results');
     const errorMsgP = document.getElementById('error-message');
 
-    // Cargar datos de la sesión anterior
     const dailyKwh = sessionStorage.getItem('totalDailyKwh');
     if (dailyKwh) {
         consumptionInput.value = parseFloat(dailyKwh).toFixed(2);
@@ -97,12 +105,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Poblar dropdowns
+    locationSelect.innerHTML = '<option value="">-- Selecciona Ubicación --</option>';
     for (const name in locationData) {
         const option = document.createElement('option');
         option.value = locationData[name];
         option.textContent = name;
         locationSelect.appendChild(option);
     }
+    panelSelect.innerHTML = '<option value="">-- Selecciona Panel --</option>';
     for (const key in panelData) {
         const option = document.createElement('option');
         option.value = key;
@@ -114,10 +124,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const dailyEnergyNeeded = parseFloat(consumptionInput.value);
         const hsp = parseFloat(locationSelect.value);
         const panelKey = panelSelect.value;
-        const panelWattage = panelData[panelKey].wattage;
+        const panelWattage = panelData[panelKey]?.wattage; // Usar optional chaining para seguridad
         const performanceRatio = parseFloat(document.getElementById('performance-ratio').value) / 100;
 
-        if (isNaN(dailyEnergyNeeded) || dailyEnergyNeeded <= 0 || isNaN(hsp) || hsp <= 0 || !panelKey || panelWattage <= 0) {
+        if (isNaN(dailyEnergyNeeded) || dailyEnergyNeeded <= 0 || isNaN(hsp) || hsp <= 0 || !panelKey || panelWattage === undefined || panelWattage <= 0) {
             errorMsgP.textContent = "Por favor, asegúrate de que todos los valores sean válidos.";
             errorMsgP.classList.remove('hidden');
             resultsDiv.classList.add('hidden');
@@ -133,12 +143,12 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('total-array-power').textContent = `${totalArrayPower} Wp`;
         resultsDiv.classList.remove('hidden');
 
-        // Guardar para el siguiente paso
         sessionStorage.setItem('numPanels', numPanelsNeeded);
         sessionStorage.setItem('panelModelKey', panelKey);
-        sessionStorage.setItem('panelWattage', panelWattage); // Guardamos la potencia específica para el caso "Otro"
+        sessionStorage.setItem('panelWattage', panelWattage);
     });
 });
 </script>
 </body>
 </html>
+

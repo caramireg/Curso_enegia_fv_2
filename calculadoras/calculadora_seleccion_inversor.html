@@ -10,6 +10,9 @@
         body { font-family: 'Inter', sans-serif; background-color: #f0f4f8; color: #333; }
         .container { background-color: #ffffff; padding: 1.5rem 2rem; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); max-width: 900px; margin: 2rem auto; }
         h1, h2 { color: #1a237e; text-align: center; margin-bottom: 1.5rem; }
+        /* CORRECCIÓN: Ajuste de margen para el título y subtítulo */
+        h1 { margin-bottom: 0.5rem; }
+        .subtitle { text-align: center; color: #4b5563; margin-bottom: 1.5rem; }
         h2 { font-size: 1.25rem; margin-top: 1.5rem; color: #3f51b5; border-bottom: 1px solid #e0e0e0; padding-bottom: 0.5rem; text-align: left; }
         label { display: block; margin-bottom: 0.4rem; font-weight: 600; color: #444; }
         input[type="number"], select { width: 100%; padding: 0.6rem; margin-bottom: 1rem; border: 1px solid #ccc; border-radius: 4px; }
@@ -43,7 +46,7 @@
             Volver a Baterías
         </a>
         <h1>Paso 5: Selector de Inversor</h1>
-        <p style="text-align: center; color: #4b5563; margin-top:-1rem; margin-bottom: 1.5rem;">Elige un inversor compatible con la potencia de tus electrodomésticos.</p>
+        <p class="subtitle">Elige un inversor compatible con la potencia de tus electrodomésticos.</p>
 
         <div class="section inputs">
             <h2>Parámetros Requeridos</h2>
@@ -96,19 +99,15 @@
 <script>
 document.addEventListener('DOMContentLoaded', () => {
     const inverterData = [
-        // 12V
         { id: 'inv_300_12', name: 'Inversor 300W 12V', voltage: 12, powerW: 300, peakPowerW: 600, type: 'Onda Pura' },
         { id: 'inv_600_12', name: 'Inversor 600W 12V', voltage: 12, powerW: 600, peakPowerW: 1200, type: 'Onda Pura' },
         { id: 'inv_1000_12', name: 'Inversor 1000W 12V', voltage: 12, powerW: 1000, peakPowerW: 2000, type: 'Onda Pura' },
         { id: 'inv_1500_12', name: 'Inversor 1500W 12V', voltage: 12, powerW: 1500, peakPowerW: 3000, type: 'Onda Pura' },
-        // 24V
         { id: 'inv_1000_24', name: 'Inversor 1000W 24V', voltage: 24, powerW: 1000, peakPowerW: 2000, type: 'Onda Pura' },
         { id: 'inv_2000_24', name: 'Inversor 2000W 24V', voltage: 24, powerW: 2000, peakPowerW: 4000, type: 'Onda Pura' },
         { id: 'inv_3000_24', name: 'Inversor 3000W 24V', voltage: 24, powerW: 3000, peakPowerW: 6000, type: 'Onda Pura' },
-        // 48V
         { id: 'inv_3000_48', name: 'Inversor 3000W 48V', voltage: 48, powerW: 3000, peakPowerW: 6000, type: 'Onda Pura' },
         { id: 'inv_5000_48', name: 'Inversor 5000W 48V', voltage: 48, powerW: 5000, peakPowerW: 10000, type: 'Onda Pura' },
-        // Onda Modificada (Opciones más económicas)
         { id: 'inv_mod_1000_12', name: 'Inversor 1000W 12V (Modificada)', voltage: 12, powerW: 1000, peakPowerW: 2000, type: 'Onda Modificada' },
         { id: 'inv_mod_2000_24', name: 'Inversor 2000W 24V (Modificada)', voltage: 24, powerW: 2000, peakPowerW: 4000, type: 'Onda Modificada' }
     ];
@@ -148,7 +147,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const systemVoltage = parseInt(systemVoltageInvSelect.value);
         const surgeFactor = parseFloat(surgeFactorInput.value);
 
-        const requiredContinuousPower = peakLoad * 1.25; // 25% margen de seguridad
+        const requiredContinuousPower = peakLoad * 1.25;
         const requiredPeakPower = peakLoad * surgeFactor;
 
         const compatibleInverters = inverterData.filter(inv => 
@@ -210,3 +209,4 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 </html>
+
