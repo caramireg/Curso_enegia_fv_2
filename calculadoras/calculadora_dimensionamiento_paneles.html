@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Paneles Solares</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .input-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; }
+        input[readonly], select[readonly] { background-color: #f3f4f6; cursor: not-allowed; }
+        .results-output-box { background-color: #ecfdf5; padding: 1.5rem; border-radius: 0.5rem; border: 1px solid #a7f3d0; }
+        .result-item { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 0; border-bottom: 1px dashed #a7f3d0; }
+        .result-item:last-child { border-bottom: none; }
+        .result-item span:last-child { font-weight: 700; font-size: 1.1rem; color: #065f46; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+    <div class="bg-white p-6 md:p-8 rounded-xl shadow-lg w-full max-w-4xl">
+        <a href="../index.html" class="inline-flex items-center mb-6 text-sm font-medium text-gray-600 hover:text-blue-600">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+            Volver al Curso
+        </a>
+        <h1 class="text-2xl md:text-3xl font-bold text-center text-gray-800 mb-6">Paso 2: Dimensionamiento de Paneles</h1>
+        <p class="text-center text-gray-600 mb-8">Calcula el número de paneles solares necesarios para cubrir tu consumo.</p>
+
+        <div class="input-grid">
+            <div>
+                <label for="consumption-value" class="block text-sm font-medium text-gray-700 mb-1">Consumo Diario (kWh):</label>
+                <input type="number" id="consumption-value" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" readonly>
+            </div>
+            <div>
+                <label for="location-hsp" class="block text-sm font-medium text-gray-700 mb-1">Ubicación (HSP aprox.):</label>
+                <select id="location-hsp" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"></select>
+            </div>
+            <div>
+                <label for="panel-select" class="block text-sm font-medium text-gray-700 mb-1">Modelo de Panel:</label>
+                <select id="panel-select" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"></select>
+            </div>
+            <div>
+                <label for="performance-ratio" class="block text-sm font-medium text-gray-700 mb-1">Rendimiento del Sistema (%):</label>
+                <input type="number" id="performance-ratio" value="80" min="50" max="95" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+            </div>
+        </div>
+
+        <div class="mt-8 text-center">
+            <button id="calculate-btn" class="w-full md:w-auto py-2.5 px-8 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-blue-600 hover:bg-blue-700">Calcular Paneles</button>
+        </div>
+        
+        <div id="calculator-results" class="mt-8 results-output-box hidden">
+            <h3 class="text-lg font-semibold mb-4 text-center text-green-800">Resultado del Dimensionamiento</h3>
+            <div class="result-item">
+                <span>Número de Paneles Necesarios:</span>
+                <span id="num-panels-needed">--</span>
+            </div>
+            <div class="result-item">
+                <span>Potencia Total del Arreglo:</span>
+                <span id="total-array-power">-- Wp</span>
+            </div>
+            <div class="mt-6 text-center">
+                <a id="continue-btn" href="calculadora_seleccion_controlador.html" class="w-full md:w-auto inline-block py-2.5 px-8 border rounded-md text-white bg-green-600 hover:bg-green-700">Continuar a Selección de Controlador →</a>
+            </div>
+        </div>
+        <p id="error-message" class="mt-4 text-sm text-red-600 font-medium text-center hidden"></p>
+    </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const panelData = {
+        'poli_150': { name: "Policristalino 150W", wattage: 150 },
+        'mono_380': { name: "Monocristalino 380W", wattage: 380 },
+        'mono_450': { name: "Monocristalino 450W", wattage: 450 },
+        'mono_550': { name: "Monocristalino 550W", wattage: 550 },
+        'otro': { name: "Otro (Manual)", wattage: 0 }
+    };
+    const locationData = {
+        "Bogotá (4.1)": 4.1, "Medellín (4.2)": 4.2, "Cali (4.3)": 4.3, "Barranquilla (5.4)": 5.4, "Manizales (4.2)": 4.2, "Otro": 0
+    };
+
+    const consumptionInput = document.getElementById('consumption-value');
+    const locationSelect = document.getElementById('location-hsp');
+    const panelSelect = document.getElementById('panel-select');
+    const calculateBtn = document.getElementById('calculate-btn');
+    const resultsDiv = document.getElementById('calculator-results');
+    const errorMsgP = document.getElementById('error-message');
+
+    // Cargar datos de la sesión anterior
+    const dailyKwh = sessionStorage.getItem('totalDailyKwh');
+    if (dailyKwh) {
+        consumptionInput.value = parseFloat(dailyKwh).toFixed(2);
+    } else {
+        errorMsgP.textContent = "No se encontró el consumo diario. Por favor, empieza desde la calculadora de consumo.";
+        errorMsgP.classList.remove('hidden');
+        calculateBtn.disabled = true;
+    }
+
+    // Poblar dropdowns
+    for (const name in locationData) {
+        const option = document.createElement('option');
+        option.value = locationData[name];
+        option.textContent = name;
+        locationSelect.appendChild(option);
+    }
+    for (const key in panelData) {
+        const option = document.createElement('option');
+        option.value = key;
+        option.textContent = panelData[key].name;
+        panelSelect.appendChild(option);
+    }
+
+    calculateBtn.addEventListener('click', () => {
+        const dailyEnergyNeeded = parseFloat(consumptionInput.value);
+        const hsp = parseFloat(locationSelect.value);
+        const panelKey = panelSelect.value;
+        const panelWattage = panelData[panelKey].wattage;
+        const performanceRatio = parseFloat(document.getElementById('performance-ratio').value) / 100;
+
+        if (isNaN(dailyEnergyNeeded) || dailyEnergyNeeded <= 0 || isNaN(hsp) || hsp <= 0 || !panelKey || panelWattage <= 0) {
+            errorMsgP.textContent = "Por favor, asegúrate de que todos los valores sean válidos.";
+            errorMsgP.classList.remove('hidden');
+            resultsDiv.classList.add('hidden');
+            return;
+        }
+        errorMsgP.classList.add('hidden');
+
+        const dailyEnergyPerPanel = panelWattage * hsp * performanceRatio;
+        const numPanelsNeeded = Math.ceil((dailyEnergyNeeded * 1000) / dailyEnergyPerPanel);
+        const totalArrayPower = numPanelsNeeded * panelWattage;
+
+        document.getElementById('num-panels-needed').textContent = numPanelsNeeded;
+        document.getElementById('total-array-power').textContent = `${totalArrayPower} Wp`;
+        resultsDiv.classList.remove('hidden');
+
+        // Guardar para el siguiente paso
+        sessionStorage.setItem('numPanels', numPanelsNeeded);
+        sessionStorage.setItem('panelModelKey', panelKey);
+        sessionStorage.setItem('panelWattage', panelWattage); // Guardamos la potencia específica para el caso "Otro"
+    });
+});
+</script>
+</body>
+</html>

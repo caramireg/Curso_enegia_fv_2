@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evaluación Final - Jóvenes Ingenieros Solares</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f0f4f8; padding: 1rem; }
+        .container { max-width: 900px; margin: 2rem auto; background-color: white; padding: 2rem; border-radius: 0.75rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        h1 { font-size: 2.25rem; font-weight: 800; color: #1e3a8a; text-align: center; }
+        h2 { font-size: 1.5rem; font-weight: 700; margin-top: 1.5rem; color: #3730a3; padding-bottom: 0.5rem; }
+        .back-button { display: inline-flex; align-items: center; padding: 0.5rem 1rem; background-color: #475569; color: white; border-radius: 0.5rem; text-decoration: none; font-weight: 500; margin-bottom: 1.5rem; }
+        .question-wrapper { margin-top: 1.5rem; padding: 1.5rem; border: 1px solid #e2e8f0; border-radius: 0.5rem; background-color: #f8fafc; }
+        .question-title { font-weight: 600; color: #1d4ed8; margin-bottom: 1rem; }
+        .options-container button { display: block; width: 100%; background-color: white; border: 2px solid #93c5fd; padding: 0.75rem; margin-top: 0.5rem; border-radius: 0.5rem; cursor: pointer; text-align: left; }
+        .options-container button.selected { background-color: #dbeafe; border-color: #60a5fa; font-weight: bold; }
+        .options-container button.correct { background-color: #dcfce7; border-color: #4ade80; }
+        .options-container button.incorrect { background-color: #fee2e2; border-color: #f87171; }
+        .options-container button:disabled { cursor: not-allowed; }
+        .calc-input { padding: 0.5rem; border: 1px solid #93c5fd; border-radius: 0.375rem; width: 150px; text-align: center; }
+        #finalize-btn { display: block; width: 100%; margin-top: 2rem; padding: 1rem; font-size: 1.25rem; font-weight: bold; color: white; background-color: #16a34a; border: none; border-radius: 0.5rem; cursor: pointer; }
+        #final-score-container { margin-top: 2rem; padding: 2rem; background-color: #e0f2fe; text-align: center; border-radius: 0.5rem; }
+        .diploma-message { margin-top: 1.5rem; padding: 1.5rem; background-color: #dbeafe; border-radius: 0.5rem; border: 1px solid #a5b4fc; }
+    </style>
+</head>
+<body class="antialiased bg-gray-100">
+    <main class="container mx-auto px-4 py-8" id="module-root">
+        <a href="../index.html" class="back-button">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+            Volver al Menú Principal
+        </a>
+        <h1>Evaluación Final del Curso</h1>
+        <p style="text-align: center; color: #475569; margin-top:-1rem; margin-bottom: 1.5rem;">Demuestra todo lo que aprendiste sobre energía solar.</p>
+
+        <div id="evaluation-container">
+            <!-- Las preguntas de la evaluación se generarán aquí -->
+        </div>
+        
+        <button id="finalize-btn">¡Ver Mi Resultado Final!</button>
+        <div id="final-score-container" class="hidden"></div>
+    </main>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+    const evaluationData = [
+        { type: 'quiz', title: "Conceptos Fundamentales", question: "El fenómeno que permite a un panel solar convertir luz en electricidad se llama:", options: ["Efecto Termoeléctrico", "Efecto Fotovoltaico", "Efecto Joule"], correctAnswer: "Efecto Fotovoltaico" },
+        { type: 'scenario', title: "Análisis de Sistemas", question: "Un negocio en la ciudad, con una red eléctrica estable, quiere instalar paneles únicamente para reducir su factura de luz. ¿Qué sistema le recomiendas?", options: ["Off-Grid", "Híbrido", "On-Grid"], correctAnswer: "On-Grid" },
+        { type: 'quiz', title: "Componentes Clave", question: "En un sistema aislado (Off-Grid), ¿qué componente es esencial para evitar que las baterías se dañen por sobrecarga?", options: ["El Inversor", "El Medidor Bidireccional", "El Regulador de Carga"], correctAnswer: "El Regulador de Carga" },
+        { type: 'calculation', title: "Desafío de Cálculo", question: "Necesitas generar 4 kWh (4000 Wh) al día. Si cada panel que usas puede generar 1600 Wh en un día, ¿cuántos paneles necesitas?", correctAnswer: 3 },
+        { type: 'quiz', title: "Innovación Solar", question: "La tecnología que permite instalar paneles sobre cultivos agrícolas se llama:", options: ["Fotovoltaica Flotante", "Agrovoltaica", "Termovoltaica"], correctAnswer: "Agrovoltaica" }
+    ];
+
+    const evaluationContainer = document.getElementById('evaluation-container');
+    let userAnswers = {};
+
+    function renderEvaluation() {
+        evaluationData.forEach((section, index) => {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'question-wrapper';
+            wrapper.innerHTML = `<h2>${section.title}</h2><p class="question-title">${section.question}</p>`;
+            const contentDiv = document.createElement('div');
+            wrapper.appendChild(contentDiv);
+            
+            if (section.type === 'quiz' || section.type === 'scenario') {
+                const optionsDiv = document.createElement('div');
+                optionsDiv.className = 'options-container';
+                section.options.forEach(opt => {
+                    const btn = document.createElement('button');
+                    btn.textContent = opt;
+                    btn.onclick = () => {
+                        userAnswers[index] = opt;
+                        optionsDiv.querySelectorAll('button').forEach(b => b.classList.remove('selected'));
+                        btn.classList.add('selected');
+                    };
+                    optionsDiv.appendChild(btn);
+                });
+                contentDiv.appendChild(optionsDiv);
+            }
+
+            if (section.type === 'calculation') {
+                const input = document.createElement('input');
+                input.type = 'number';
+                input.className = 'calc-input';
+                input.placeholder = 'N° de paneles';
+                input.oninput = () => { userAnswers[index] = parseInt(input.value); };
+                contentDiv.appendChild(input);
+            }
+            evaluationContainer.appendChild(wrapper);
+        });
+    }
+
+    document.getElementById('finalize-btn').addEventListener('click', () => {
+        let score = 0;
+        const totalQuestions = evaluationData.length;
+
+        evaluationData.forEach((section, index) => {
+            const questionWrapper = evaluationContainer.children[index];
+            const options = questionWrapper.querySelectorAll('.options-container button');
+            
+            if (userAnswers[index] === section.correctAnswer) {
+                score++;
+            }
+            
+            if (options.length > 0) {
+                options.forEach(btn => {
+                    btn.disabled = true;
+                    if (btn.textContent === section.correctAnswer) {
+                        btn.classList.add('correct');
+                    } else if (btn.textContent === userAnswers[index]) {
+                        btn.classList.add('incorrect');
+                    }
+                });
+            }
+        });
+        
+        const finalScoreContainer = document.getElementById('final-score-container');
+        const percentage = totalQuestions > 0 ? (score / totalQuestions) * 100 : 0;
+        
+        let message = `<h2>Tu Resultado Final</h2><p style="font-size: 1.5rem; font-weight: bold; margin: 1rem 0;">${percentage.toFixed(0)}%</p><p>(${score} de ${totalQuestions} respuestas correctas)</p>`;
+        
+        if (percentage >= 80) {
+            const studentName = prompt(`¡Felicidades! Aprobaste con un ${percentage.toFixed(0)}%. Ingresa tu nombre completo para el certificado:`, "Nombre del Estudiante");
+            if (studentName && studentName.trim() !== "") {
+                const today = new Date().toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' });
+                message += `<div class="diploma-message">
+                    <p style="font-weight:bold; font-size:1.5rem;">¡FELICITACIONES, ${studentName}!</p>
+                    <p>Has completado exitosamente la evaluación del curso:</p>
+                    <p style="font-weight:bold; margin:0.5rem 0;">"Conceptos Básicos de Energía Solar Fotovoltaica"</p>
+                    <p style="font-size:0.8rem; margin-top:1rem;">${today}</p>
+                </div>`;
+            }
+        } else {
+            message += `<p style="color: #b45309; font-weight: bold; margin-top: 1rem;">¡Sigue estudiando! Estás cerca. Repasa los módulos y vuelve a intentarlo.</p>`;
+        }
+        
+        finalScoreContainer.innerHTML = message;
+        finalScoreContainer.classList.remove('hidden');
+        document.getElementById('finalize-btn').style.display = 'none';
+    });
+    
+    renderEvaluation();
+});
+</script>
+</body>
+</html>

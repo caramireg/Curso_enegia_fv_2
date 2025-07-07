@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Módulo 3 - Jóvenes Ingenieros Solares</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        .container { max-width: 900px; margin: 2rem auto; background-color: white; padding: 2rem; border-radius: 0.75rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        h1 { font-size: 2.25rem; font-weight: 800; color: #1e3a8a; text-align: center; }
+        h2 { font-size: 1.5rem; font-weight: 700; margin-top: 2.5rem; border-bottom: 2px solid #dbeafe; padding-bottom: 0.5rem; }
+        .back-button { display: inline-flex; align-items: center; padding: 0.5rem 1rem; background-color: #475569; color: white; border-radius: 0.5rem; text-decoration: none; font-weight: 500; margin-bottom: 1.5rem; }
+        .collapsible-button { width: 100%; text-align: left; font-weight: 600; font-size: 1.25rem; padding: 1rem; background-color: #eef2ff; border-radius: 0.5rem; display: flex; justify-content: space-between; align-items: center; }
+        .collapsible-content { padding: 1.5rem; border: 1px solid #eef2ff; border-top: none; border-radius: 0 0 0.5rem 0.5rem; }
+        .sub-content-container { margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px dashed #c7d2fe; }
+        .interactive-link { display: block; margin-top: 1rem; padding: 0.75rem; background-color: #1d4ed8; color: white; text-align: center; border-radius: 0.5rem; font-weight: 600; text-decoration: none; }
+        .activity-button-container { text-align: center; margin-top: 2rem; border-top: 2px solid #eef2ff; padding-top: 1.5rem; }
+        .activity-button { background-color: #16a34a; color: white; padding: 0.8rem 1.5rem; border-radius: 0.5rem; font-weight: 600; text-decoration: none; display: inline-block; }
+    </style>
+</head>
+<body class="antialiased bg-gray-100">
+    <main class="container mx-auto px-4 py-8" id="module-root"></main>
+
+<script>
+    const moduleData = {
+        title: "Módulo 3: El Equipo del Héroe 🛠️",
+        description: "Conoce a los protagonistas: paneles, controladores, baterías e inversores.",
+        content: [
+            { 
+                heading: "Paneles Solares: El Corazón del Sistema",
+                text: "Los paneles son los colectores de poder, pero no todos son iguales. Se diferencian por su eficiencia y apariencia.",
+                subContent: [
+                    { heading: "Tipos de Células", text: "Puedes distinguir los paneles a simple vista. Los Monocristalinos son de un color negro oscuro y uniforme. Los Policristalinos tienen un característico color azul con un patrón de 'cristales rotos'.", imagePath: "../images/modulo3/paneles_tipos_celulas.png" },
+                    { heading: "Eficiencia Comparada", text: "La eficiencia mide qué tan bien un panel convierte la luz solar en electricidad. Los Monocristalinos lideran con hasta un 22% de eficiencia.", imagePath: "../images/modulo3/paneles_eficiencia.png" }
+                ]
+            },
+            { 
+                heading: "Orientación e Inclinación",
+                text: "Para que un panel produzca la máxima energía, debe 'mirar' al sol. En el Hemisferio Norte se inclinan hacia el Sur, y en el Sur hacia el Norte. En Colombia, al estar en el ecuador, se instalan casi planos.",
+                imagePath: "../images/modulo3/orientacion_paneles.png",
+                linkToActivity: { href: "../actividades/actividad_orientacion.html", text: "🧠 Abrir Simulador de Inclinación" }
+            },
+            {
+                heading: "Controlador de Carga: El Cerebro del Sistema",
+                text: "El controlador es el cerebro que gestiona la energía entre los paneles y las baterías. Hay dos tipos principales:",
+                subContent: [
+                    { 
+                        heading: "PWM (El Interruptor Rápido)", 
+                        text: "Observa cómo el controlador PWM actúa como un interruptor. Recibe los 18V del panel, pero solo entrega 12V a la batería. El voltaje extra se pierde, resultando en 'energía no utilizada'.",
+                        imagePath: "../images/modulo3/controlador_pwm.png" // RUTA CORREGIDA
+                    },
+                    { 
+                        heading: "MPPT (El Traductor Inteligente)", 
+                        text: "Este es más avanzado. Actúa como un convertidor que toma los 18V y 5.5A del panel y los convierte eficientemente en 12V y 8.25A para la batería, sin desperdiciar energía.",
+                        imagePath: "../images/modulo3/controlador_mppt.png" // RUTA CORREGIDA
+                    }
+                ]
+            },
+            { heading: "Batería", text: "Almacena la energía del día para que puedas usarla por la noche.", imagePath: "../images/modulo3/baterias_acumuladores.png" },
+            { heading: "Inversor", text: "El traductor universal. Convierte la energía de Corriente Continua (DC) a Corriente Alterna (AC).", imagePath: "../images/modulo3/inversor.png" }
+        ],
+        activityLink: "../actividades/actividades_modulo3.html"
+    };
+
+    const appRoot = document.getElementById('module-root');
+    
+    appRoot.innerHTML = `
+        <a href="../index.html" class="back-button">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+            Volver al Menú Principal
+        </a>
+        <h1 class="text-4xl font-extrabold text-gray-900 mb-4 text-center">${moduleData.title}</h1>
+        <p class="text-lg text-gray-600 text-center mb-8">${moduleData.description}</p>
+    `;
+
+    const contentContainer = document.createElement('div');
+    contentContainer.className = 'max-w-3xl mx-auto';
+    
+    function renderCollapsibleSection(item) {
+        const sectionDiv = document.createElement('div');
+        sectionDiv.className = 'mb-4';
+        const button = document.createElement('button');
+        button.className = 'collapsible-button w-full text-left font-semibold text-lg p-4 bg-indigo-100 rounded-lg flex justify-between items-center';
+        button.innerHTML = `<span>${item.heading}</span><svg class="w-5 h-5 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7"></path></svg>`;
+        
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'collapsible-content hidden p-4';
+        if (item.text) contentDiv.innerHTML += `<p class="mb-4">${item.text}</p>`;
+        if (item.imagePath) contentDiv.innerHTML += `<img src="${item.imagePath}" alt="${item.heading}" class="w-full h-auto max-w-xl mx-auto rounded-lg shadow-lg my-4">`;
+        
+        if (item.subContent) {
+            const subContainer = document.createElement('div');
+            item.subContent.forEach(subItem => {
+                const subDiv = document.createElement('div');
+                subDiv.className = 'sub-content-container mt-4';
+                subDiv.innerHTML = `<h4 class="font-semibold text-lg text-gray-800">${subItem.heading}</h4><p class="mb-2">${subItem.text}</p>`;
+                if (subItem.imagePath) {
+                    subDiv.innerHTML += `<img src="${subItem.imagePath}" alt="${subItem.heading}" class="w-full h-auto max-w-lg mx-auto rounded-lg shadow-sm mt-2">`;
+                }
+                subContainer.appendChild(subDiv);
+            });
+            contentDiv.appendChild(subContainer);
+        }
+        
+        if (item.linkToActivity) {
+            const link = document.createElement('a');
+            link.href = item.linkToActivity.href;
+            link.textContent = item.linkToActivity.text;
+            link.className = 'interactive-link';
+            contentDiv.appendChild(link);
+        }
+        
+        button.onclick = () => { contentDiv.classList.toggle('hidden'); button.querySelector('svg').classList.toggle('rotate-180'); };
+        sectionDiv.append(button, contentDiv);
+        return sectionDiv;
+    }
+    
+    moduleData.content.forEach(item => {
+        contentContainer.appendChild(renderCollapsibleSection(item));
+    });
+
+    if (moduleData.activityLink) {
+        const activityButtonContainer = document.createElement('div');
+        activityButtonContainer.className = 'activity-button-container text-center mt-8 pt-6 border-t-2';
+        activityButtonContainer.innerHTML = `<a href="${moduleData.activityLink}" class="activity-button">⚡ Practicar este Módulo</a>`;
+        contentContainer.appendChild(activityButtonContainer);
+    }
+    
+    appRoot.appendChild(contentContainer);
+</script>
+</body>
+</html>
+

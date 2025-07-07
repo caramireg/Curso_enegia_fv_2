@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Actividades: Módulo 4 - Jóvenes Ingenieros Solares</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f0f4f8; padding: 1rem; }
+        .container { max-width: 900px; margin: 2rem auto; background-color: white; padding: 2rem; border-radius: 0.75rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        h1 { font-size: 2.25rem; font-weight: 800; color: #1e3a8a; text-align: center; }
+        h2 { font-size: 1.5rem; font-weight: 700; margin-top: 2.5rem; border-bottom: 2px solid #dbeafe; padding-bottom: 0.5rem; }
+        .back-button { display: inline-flex; align-items: center; padding: 0.5rem 1rem; background-color: #475569; color: white; border-radius: 0.5rem; text-decoration: none; font-weight: 500; margin-bottom: 1.5rem; }
+        .activity-wrapper { margin-top: 1.5rem; padding: 1.5rem; border: 1px solid #e2e8f0; border-radius: 0.5rem; background-color: #f8fafc; }
+        .activity-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+        .activity-description { color: #475569; text-align: center; margin-bottom: 1.5rem; }
+        .quiz-question { font-weight: 600; color: #1d4ed8; margin-bottom: 1rem; }
+        .quiz-options button { display: block; width: 100%; background-color: white; border: 2px solid #93c5fd; padding: 0.75rem; margin-top: 0.5rem; border-radius: 0.5rem; cursor: pointer; text-align: left; }
+        .quiz-options button.correct { background-color: #dcfce7; border-color: #4ade80; }
+        .quiz-options button.incorrect { background-color: #fee2e2; border-color: #f87171; }
+        .quiz-options button:disabled { cursor: not-allowed; font-weight: bold; }
+        .feedback { margin-top: 0.5rem; font-weight: bold; text-align: right; min-height: 1.5rem; }
+        .reset-btn { background-color: #64748b; color: white; border: none; padding: 0.4rem 0.8rem; font-size: 0.8rem; border-radius: 4px; cursor: pointer; }
+        .calc-container { display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 1rem; }
+        .calc-input { width: 120px; padding: 0.5rem; border-radius: 4px; border: 1px solid #93c5fd; }
+        .calc-button { padding: 0.5rem 1rem; font-size: 1rem; background-color: #3b82f6; border:none; color:white; border-radius:4px; }
+    </style>
+</head>
+<body class="antialiased bg-gray-100">
+    <main class="container mx-auto px-4 py-8" id="module-root">
+        <a href="../index.html" class="back-button">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+            Volver al Menú Principal
+        </a>
+        <h1>Actividades del Módulo 4</h1>
+        <p class="activity-description" style="font-size: 1.2rem;">¡Es hora de hacer números! Demuestra tus habilidades de cálculo.</p>
+
+        <div id="activities-container">
+            <!-- Las actividades se generarán aquí -->
+        </div>
+    </main>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+    const activitiesData = [
+        {
+            type: 'calculation',
+            title: "⚡ Cálculo Rápido de Consumo",
+            description: "Calcula la energía consumida por el siguiente aparato.",
+            question: "Si usas un secador de pelo de 1200W durante 15 minutos (0.25 horas), ¿cuántos Vatios-hora (Wh) de energía has consumido?",
+            correctAnswer: 300,
+            unit: "Wh"
+        },
+        {
+            type: 'calculation',
+            title: "Paneles Necesarios",
+            description: "Calcula cuántos paneles se necesitan para cubrir la demanda.",
+            question: "Necesitas generar 2000 Wh al día. Usarás paneles de 100W en una zona con 4 Horas Sol Pico (HSP). Ignorando las pérdidas, ¿cuántos paneles necesitas? (Pista: Energía_por_Panel = Potencia × HSP)",
+            correctAnswer: 5,
+            unit: "paneles"
+        },
+        {
+            type: 'quiz',
+            title: "🤔 ¿Qué Herramienta Uso?",
+            description: "Para cada problema, elige la calculadora correcta a la que deberías ir.",
+            questions: [
+                {
+                    question: "Para saber cuánta energía gastan en total tu TV, tu consola y tu computador al mes, ¿qué necesitas usar primero?",
+                    options: ["La Calculadora de Paneles", "La Calculadora de Consumo", "La Calculadora de Baterías"],
+                    correctAnswer: "La Calculadora de Consumo"
+                }
+            ]
+        }
+    ];
+
+    const activitiesContainer = document.getElementById('activities-container');
+
+    function renderActivity(activity, container) {
+        container.innerHTML = `
+            <div class="activity-header">
+                <h2>${activity.title}</h2>
+                <button class="reset-btn">Reiniciar</button>
+            </div>
+            <p class="activity-description">${activity.description}</p>`;
+        const contentDiv = document.createElement('div');
+        container.appendChild(contentDiv);
+        
+        container.querySelector('.reset-btn').addEventListener('click', () => {
+             const newContainer = container.cloneNode(false);
+             container.parentNode.replaceChild(newContainer, container);
+             renderActivity(activity, newContainer);
+        });
+
+        if (activity.type === 'quiz') {
+            activity.questions.forEach(q => {
+                const item = document.createElement('div');
+                item.innerHTML = `<p class="quiz-question">${q.question}</p><div class="quiz-options"></div><div class="feedback"></div>`;
+                const optionsDiv = item.querySelector('.quiz-options');
+                q.options.forEach(opt => {
+                    const btn = document.createElement('button'); btn.textContent = opt;
+                    btn.onclick = () => {
+                        optionsDiv.querySelectorAll('button').forEach(b => b.disabled = true);
+                        const feedback = item.querySelector('.feedback');
+                        if(opt === q.correctAnswer) {
+                            btn.classList.add('correct'); feedback.textContent = '¡Correcto! ✅'; feedback.style.color = 'green';
+                        } else {
+                            btn.classList.add('incorrect'); feedback.textContent = 'Incorrecto.'; feedback.style.color = 'red';
+                        }
+                    };
+                    optionsDiv.appendChild(btn);
+                });
+                contentDiv.appendChild(item);
+            });
+        }
+        
+        if (activity.type === 'calculation') {
+            const item = document.createElement('div');
+            item.innerHTML = `<p class="quiz-question">${activity.question}</p><div class="calc-container"><input type="number" class="calc-input" placeholder="Tu respuesta"><span class="font-semibold">${activity.unit}</span><button class="calc-button">Verificar</button></div><div class="feedback text-center"></div>`;
+            const input = item.querySelector('input');
+            const button = item.querySelector('button');
+            const feedback = item.querySelector('.feedback');
+            button.addEventListener('click', () => {
+                const userAnswer = parseFloat(input.value);
+                if (Math.abs(userAnswer - activity.correctAnswer) < 0.01) {
+                    feedback.textContent = '¡Cálculo Correcto! ✅'; feedback.style.color = 'green';
+                } else {
+                    feedback.textContent = `Resultado incorrecto. La respuesta era ${activity.correctAnswer}.`; feedback.style.color = 'red';
+                }
+                button.disabled = true; input.disabled = true;
+            });
+            contentDiv.appendChild(item);
+        }
+    }
+
+    activitiesData.forEach(activity => {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'activity-wrapper';
+        renderActivity(activity, wrapper);
+        activitiesContainer.appendChild(wrapper);
+    });
+});
+</script>
+</body>
+</html>

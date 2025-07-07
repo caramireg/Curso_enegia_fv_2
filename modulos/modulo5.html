@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Módulo 5 - Jóvenes Ingenieros Solares</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        .container { max-width: 900px; margin: 2rem auto; background-color: white; padding: 2rem; border-radius: 0.75rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        h1 { font-size: 2.25rem; font-weight: 800; color: #1e3a8a; text-align: center; }
+        .back-button { display: inline-flex; align-items: center; padding: 0.5rem 1rem; background-color: #475569; color: white; border-radius: 0.5rem; text-decoration: none; font-weight: 500; margin-bottom: 1.5rem; }
+        .collapsible-button { width: 100%; text-align: left; font-weight: 600; font-size: 1.25rem; padding: 1rem; background-color: #eef2ff; border-radius: 0.5rem; display: flex; justify-content: space-between; align-items: center; }
+        .collapsible-content { padding: 1.5rem; border: 1px solid #eef2ff; border-top: none; border-radius: 0 0 0.5rem 0.5rem; }
+        .sub-content-container { margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px dashed #c7d2fe; }
+        .step { margin-bottom: 1rem; padding-left: 1.5rem; border-left: 3px solid #6366f1; }
+        .step h4 { font-weight: bold; color: #4338ca; }
+        .activity-button-container { text-align: center; margin-top: 2rem; border-top: 2px solid #eef2ff; padding-top: 1.5rem; }
+        .activity-button { background-color: #16a34a; color: white; padding: 0.8rem 1.5rem; border-radius: 0.5rem; font-weight: 600; text-decoration: none; display: inline-block; }
+    </style>
+</head>
+<body class="antialiased bg-gray-100">
+    <main class="container mx-auto px-4 py-8" id="module-root"></main>
+
+<script>
+    const moduleData = {
+        title: "Módulo 5: El Futuro es Solar 🚀",
+        description: "Explora el mantenimiento de los sistemas, la normativa de seguridad y las increíbles innovaciones que están por venir.",
+        content: [
+            { 
+                heading: "Mantenimiento: Más Fácil que Cuidar una Planta", 
+                text: "Cuidar tus paneles es súper fácil. La tarea más importante es mantenerlos limpios. Un poco de agua de vez en cuando para quitar el polvo o las hojas es suficiente para que funcionen a máxima potencia durante más de 25 años.", 
+                imagePath: "../images/modulo5/mantenimiento_sistemas.png" 
+            },
+            { 
+                heading: "Innovaciones: ¿Qué nos espera?", 
+                text: "El futuro de la energía solar es brillante. Se están desarrollando tecnologías increíbles como la agrovoltaica (que combina agricultura y energía solar), ventanas que generan electricidad y materiales que hacen los paneles aún más eficientes.", 
+                imagePath: "../images/modulo5/tendencias_nuevas_aplicaciones.png"
+            },
+            {
+                heading: "Una Nota Importante: La Seguridad y el RETIE",
+                text: "El RETIE (Reglamento Técnico de Instalaciones Eléctricas) es el conjunto de reglas de seguridad obligatorias para cualquier instalación eléctrica en Colombia, ¡incluida la solar! Esto garantiza que todo se instale de forma segura para proteger a las personas y los equipos.",
+                // Se eliminó la referencia a la imagen que no existe
+                subContent: [
+                    {
+                        heading: "Las 5 'Reglas de Oro' de la Seguridad Eléctrica 🤚",
+                        text: "Antes de que un técnico toque cualquier cable, debe seguir estos 5 pasos sagrados: 1. Apagar TODO. 2. Bloquear con candado y etiqueta. 3. Verificar que no hay corriente. 4. Conectar a tierra como protección. 5. Señalizar la zona de trabajo."
+                    },
+                    {
+                        heading: "Seguridad en Paneles y Cables 🛡️",
+                        text: "Toda la instalación debe tener etiquetas de advertencia. Los sistemas más potentes necesitan un 'detector de chispas' (falla de arco), y los cables deben ir protegidos en tubos metálicos, como una armadura."
+                    },
+                    {
+                        heading: "Seguridad en Baterías 🔋",
+                        text: "Las baterías son tanques de energía y necesitan sus propias reglas: un interruptor de emergencia visible, cero tuberías de gas cerca y, en sistemas grandes, cumplir normas anti-incendio especiales."
+                    }
+                ]
+            },
+            {
+                heading: "Recomendaciones Finales: ¡Tu Viaje Comienza Ahora!",
+                text: "¡Felicidades! Has completado la parte teórica de este curso. Pero esto es solo el comienzo. Sigue investigando, sé curioso y no dejes de aprender. Usa nuestras calculadoras para experimentar con diferentes diseños y empieza a pensar en cómo puedes aplicar esta tecnología para cambiar el mundo. El futuro de la energía está en tus manos."
+            }
+        ],
+        activityLink: "../actividades/actividades_modulo5.html"
+    };
+
+    const appRoot = document.getElementById('module-root');
+    
+    appRoot.innerHTML = `
+        <a href="../index.html" class="back-button">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+            Volver al Menú Principal
+        </a>
+        <h1 class="text-4xl font-extrabold text-gray-900 mb-4 text-center">${moduleData.title}</h1>
+        <p class="text-lg text-gray-600 text-center mb-8">${moduleData.description}</p>
+    `;
+
+    const contentContainer = document.createElement('div');
+    contentContainer.className = 'max-w-3xl mx-auto';
+    
+    function renderCollapsibleSection(item) {
+        const sectionDiv = document.createElement('div');
+        sectionDiv.className = 'mb-4';
+        const button = document.createElement('button');
+        button.className = 'collapsible-button w-full text-left font-semibold text-lg p-4 bg-indigo-100 rounded-lg flex justify-between items-center';
+        button.innerHTML = `<span>${item.heading}</span><svg class="w-5 h-5 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7"></path></svg>`;
+        
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'collapsible-content hidden p-4';
+        if (item.text) contentDiv.innerHTML += `<p class="mb-4">${item.text}</p>`;
+        if (item.imagePath) contentDiv.innerHTML += `<img src="${item.imagePath}" alt="${item.heading}" class="w-full h-auto max-w-xl mx-auto rounded-lg shadow-lg my-4">`;
+        
+        if (item.subContent) {
+            item.subContent.forEach(subItem => {
+                const subDiv = document.createElement('div');
+                subDiv.className = 'step';
+                subDiv.innerHTML = `<h4>${subItem.heading}</h4><p>${subItem.text}</p>`;
+                contentDiv.appendChild(subDiv);
+            });
+        }
+        
+        button.onclick = () => { contentDiv.classList.toggle('hidden'); button.querySelector('svg').classList.toggle('rotate-180'); };
+        sectionDiv.append(button, contentDiv);
+        return sectionDiv;
+    }
+    
+    moduleData.content.forEach(item => {
+        contentContainer.appendChild(renderCollapsibleSection(item));
+    });
+
+    if (moduleData.activityLink) {
+        const activityButtonContainer = document.createElement('div');
+        activityButtonContainer.className = 'activity-button-container text-center mt-8 pt-6 border-t-2';
+        activityButtonContainer.innerHTML = `<a href="${moduleData.activityLink}" class="activity-button">⚡ Practicar este Módulo</a>`;
+        contentContainer.appendChild(activityButtonContainer);
+    }
+    
+    appRoot.appendChild(contentContainer);
+</script>
+</body>
+</html>
+
+

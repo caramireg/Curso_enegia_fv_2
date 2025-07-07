@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reporte Final del Sistema Solar</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f0f4f8; color: #333; }
+        .container { background-color: #ffffff; padding: 2rem; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); max-width: 800px; margin: 2rem auto; }
+        h1 { color: #1a237e; text-align: center; margin-bottom: 1rem; font-size: 2rem; font-weight: 800; }
+        h2 { font-size: 1.25rem; margin-top: 2rem; color: #3f51b5; border-bottom: 2px solid #c5cae9; padding-bottom: 0.5rem; }
+        .section-content { background-color: #f8fafc; padding: 1rem; border-radius: 4px; margin-top: 1rem; border: 1px solid #e2e8f0; }
+        .detail-item { display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0; border-bottom: 1px dashed #e0e0e0; }
+        .detail-item:last-child { border-bottom: none; }
+        .detail-item span:first-child { font-weight: 500; color: #475569; }
+        .detail-item span:last-child { font-weight: 600; color: #1e293b; text-align: right; }
+        .empty-message { color: #64748b; font-style: italic; text-align: center; padding: 1rem; }
+        .action-buttons { margin-top: 2rem; display: flex; justify-content: center; gap: 1rem; }
+        .action-buttons button, .action-buttons a { padding: 0.75rem 1.5rem; border: none; border-radius: 0.5rem; font-weight: 600; cursor: pointer; text-decoration: none; color: white; }
+        .print-btn { background-color: #007bff; }
+        .back-btn { background-color: #6c757d; }
+    </style>
+</head>
+<body>
+    <div class="container" id="report-content">
+        <h1>Reporte Final del Sistema Solar</h1>
+        <p class="text-center text-gray-600 mb-8">Resumen de los componentes y cálculos de tu sistema fotovoltaico.</p>
+
+        <div class="section">
+            <h2>1. Consumo Energético</h2>
+            <div class="section-content" id="consumption-report"></div>
+        </div>
+
+        <div class="section">
+            <h2>2. Arreglo de Paneles Solares</h2>
+            <div class="section-content" id="panels-report"></div>
+        </div>
+
+        <div class="section">
+            <h2>3. Controlador de Carga</h2>
+            <div class="section-content" id="controller-report"></div>
+        </div>
+
+        <div class="section">
+            <h2>4. Banco de Baterías</h2>
+            <div class="section-content" id="batteries-report"></div>
+        </div>
+
+        <div class="section">
+            <h2>5. Inversor</h2>
+            <div class="section-content" id="inverter-report"></div>
+        </div>
+    </div>
+    <div class="container action-buttons" style="background:none; box-shadow:none;">
+        <a href="index.html" class="back-btn">Volver al Curso</a>
+        <button onclick="window.print()" class="print-btn">Imprimir o Guardar como PDF</button>
+    </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const formatNumber = (num, decimals) => num ? parseFloat(num).toLocaleString('es-CO', { minimumFractionDigits: decimals, maximumFractionDigits: decimals }) : 'N/A';
+
+    function createDetailItem(label, value) {
+        return `<div class="detail-item"><span>${label}:</span><span>${value || 'N/A'}</span></div>`;
+    }
+
+    function renderSection(containerId, content, link) {
+        const container = document.getElementById(containerId);
+        if (content) {
+            container.innerHTML = content;
+        } else {
+            container.innerHTML = `<p class="empty-message">No hay datos disponibles. Por favor, completa la <a href="${link}" class="text-blue-600 hover:underline">calculadora correspondiente</a>.</p>`;
+        }
+    }
+    
+    // 1. Reporte de Consumo
+    const totalDailyKwh = sessionStorage.getItem('totalDailyKwh');
+    let consumptionContent = '';
+    if (totalDailyKwh) {
+        consumptionContent += createDetailItem('Consumo Diario Total', `${formatNumber(totalDailyKwh, 2)} kWh`);
+    }
+    renderSection('consumption-report', consumptionContent, 'calculadoras/calculadora_consumo_original.html');
+    
+    // 2. Reporte de Paneles y Controlador
+    const finalArrayConfig = JSON.parse(sessionStorage.getItem('finalArrayConfigSummary'));
+    let panelsContent = '';
+    let controllerContent = '';
+    if (finalArrayConfig) {
+        panelsContent += createDetailItem('Configuración', `<strong>${finalArrayConfig.finalConfig}</strong>`);
+        panelsContent += createDetailItem('Paneles Totales (Ajustado)', finalArrayConfig.finalTotalPanels);
+        panelsContent += createDetailItem('Potencia Total del Arreglo', `${finalArrayConfig.finalArrayPower} Wp`);
+        panelsContent += createDetailItem('Voltaje del Arreglo (Voc)', `${finalArrayConfig.finalArrayVoc} V`);
+        panelsContent += createDetailItem('Corriente del Arreglo (Isc)', `${finalArrayConfig.finalArrayIsc} A`);
+
+        const selectedController = JSON.parse(sessionStorage.getItem('selectedController'));
+        if (selectedController) {
+            controllerContent += createDetailItem('Modelo', `${selectedController.type} ${selectedController.current}A / ${selectedController.maxVoc}V`);
+            controllerContent += createDetailItem('Corriente Nominal', `${selectedController.current} A`);
+            controllerContent += createDetailItem('Voltaje Máx. de Entrada', `${selectedController.maxVoc} V`);
+        }
+    }
+    renderSection('panels-report', panelsContent, 'calculadoras/calculadora_dimensionamiento_paneles.html');
+    renderSection('controller-report', controllerContent, 'calculadoras/calculadora_seleccion_controlador.html');
+
+    // 3. Reporte de Baterías
+    const selectedBattery = JSON.parse(sessionStorage.getItem('selectedBatteryConfig'));
+    let batteriesContent = '';
+    if (selectedBattery) {
+        batteriesContent += createDetailItem('Modelo Seleccionado', `${selectedBattery.model} (${selectedBattery.type})`);
+        batteriesContent += createDetailItem('Configuración del Banco', `<strong>${selectedBattery.series}S / ${selectedBattery.parallel}P</strong>`);
+        batteriesContent += createDetailItem('Total de Baterías', `${selectedBattery.total} unidades`);
+        batteriesContent += createDetailItem('Capacidad Total del Banco', `${selectedBattery.ah_nominal * selectedBattery.parallel} Ah`);
+        batteriesContent += createDetailItem('Voltaje Nominal del Banco', `${selectedBattery.voltage * selectedBattery.series} V`);
+    }
+    renderSection('batteries-report', batteriesContent, 'calculadoras/calculadora_banco_baterias.html');
+
+    // 4. Reporte de Inversor
+    const selectedInverter = JSON.parse(sessionStorage.getItem('selectedInverterConfig'));
+    let inverterContent = '';
+    if (selectedInverter) {
+        const appliances = JSON.parse(sessionStorage.getItem('appliancesList') || '[]');
+        const peakLoad = appliances.reduce((sum, app) => sum + app.powerW, 0);
+        inverterContent += createDetailItem('Modelo Seleccionado', selectedInverter.name);
+        inverterContent += createDetailItem('Potencia Continua', `${selectedInverter.powerW} W`);
+        inverterContent += createDetailItem('Potencia Pico', `${selectedInverter.peakPowerW} W`);
+        inverterContent += createDetailItem('Tipo de Onda', selectedInverter.type);
+        inverterContent += createDetailItem('Potencia de Cargas Requerida', `<strong>${peakLoad} W</strong>`);
+    }
+    renderSection('inverter-report', inverterContent, 'calculadoras/calculadora_seleccion_inversor.html');
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paso 3: Selector de Controlador de Carga</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Estilos basados en tu diseño original para mantener la consistencia */
+        body { 
+            font-family: 'Inter', sans-serif;
+            background-color: #f4f4f9; 
+            color: #333; 
+        }
+        .container { 
+            background-color: #ffffff; 
+            padding: 1.5rem 2rem; 
+            border-radius: 8px; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1); 
+            max-width: 900px; 
+            margin: 2rem auto; 
+        }
+        h1, h2, h4 { 
+            color: #0056b3; 
+            text-align: center; 
+            margin-bottom: 1rem; 
+        }
+        h2 { 
+            margin-top: 1.5rem; 
+            color: #007bff; 
+            text-align: left; 
+            border-bottom: 1px solid #eee; 
+            padding-bottom: 0.5rem; 
+        }
+        h4 {
+            text-align: left;
+            border-bottom: 1px dashed #ccc;
+            padding-bottom: 0.25rem;
+        }
+        label { 
+            display: block; 
+            margin-bottom: 0.3rem; 
+            font-weight: 600; 
+            color: #555; 
+        }
+        input[type="number"], select { 
+            width: 100%; 
+            padding: 0.6rem; 
+            margin-bottom: 0.8rem; 
+            border: 1px solid #ccc; 
+            border-radius: 4px; 
+        }
+        input:disabled, select:disabled { 
+            background-color: #e9ecef; 
+            cursor: not-allowed; 
+        }
+        button { 
+            display: block; 
+            width: 100%; 
+            padding: 0.8rem; 
+            border: none; 
+            border-radius: 4px; 
+            font-size: 1.1rem; 
+            font-weight: bold; 
+            cursor: pointer; 
+            margin-top: 1rem; 
+            transition: background-color 0.2s;
+        }
+        button:disabled { background-color: #ccc; }
+        #calculate-btn { background-color: #007bff; color: white; }
+        #calculate-btn:hover { background-color: #0056b3; }
+        #confirm-selection-btn { background-color: #ffc107; color: #212529; }
+        #confirm-selection-btn:hover:not(:disabled) { background-color: #e0a800; }
+        .input-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1rem; }
+        .panel-specs { background-color: #e9ecef; padding: 0.8rem; border-radius: 4px; margin-top: 0.5rem; font-size: 0.85rem; }
+        .spec-item { display: flex; justify-content: space-between; }
+        #results-table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+        #results-table th, td { border: 1px solid #ddd; padding: 0.6rem; text-align: left; vertical-align: middle; }
+        #results-table th { background-color: #007bff; color: white; }
+        #results-table tr.selected-row { background-color: #cce5ff; font-weight: bold; }
+        #selection-details-container { display: grid; grid-template-columns: 1fr; gap: 1.5rem; margin-top: 1.5rem; }
+        @media (min-width: 768px) { #selection-details-container { grid-template-columns: repeat(2, 1fr); } }
+        #selected-controller-details, #final-array-summary { padding: 1rem; background-color: #e2f0ff; border: 1px solid #b8daff; border-radius: 4px; }
+        .detail-item { display: flex; justify-content: space-between; }
+        .error-message { color: #dc3545; background-color: #f8d7da; padding: 0.75rem; border-radius: 4px; margin-top: 1rem; text-align: center; }
+        .hidden { display: none; }
+        .info-cell strong { color: #059669; }
+        .continue-button { display: inline-block; text-align: center; padding: 0.8rem; border-radius: 4px; text-decoration: none; color: white; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="calculadora_dimensionamiento_paneles.html" class="inline-flex items-center mb-6 text-sm font-medium text-gray-600 hover:text-blue-600">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+            Volver al Paso 2
+        </a>
+        <h1>Paso 3: Selector de Controlador de Carga</h1>
+        <div class="section inputs">
+            <h2>Parámetros del Sistema</h2>
+            <div class="input-grid">
+                <div>
+                    <label for="panel-select">Modelo de Panel Solar:</label>
+                    <select id="panel-select" disabled></select>
+                    <div id="panel-specs" class="panel-specs hidden">
+                        <h4>Especificaciones del Panel:</h4>
+                        <div class="spec-item"><span>Potencia (Wp):</span><span id="spec-wp">--</span></div>
+                        <div class="spec-item"><span>V. Nominal:</span><span id="spec-nominal-v">--</span> V</div>
+                    </div>
+                </div>
+                <div>
+                    <label for="num-panels">Número Total de Paneles:</label>
+                    <input type="number" id="num-panels" readonly>
+                </div>
+                <div>
+                    <label for="system-voltage">Voltaje del Sistema (Baterías):</label>
+                    <select id="system-voltage">
+                        <option value="">-- Selecciona Voltaje --</option>
+                        <option value="12">12 V</option>
+                        <option value="24">24 V</option>
+                        <option value="48">48 V</option>
+                    </select>
+                </div>
+            </div>
+            <button id="calculate-btn">Buscar Controladores</button>
+            <div id="error-message" class="error-message hidden"></div>
+        </div>
+
+        <div class="section results hidden" id="results-section">
+            <h2>Controladores Compatibles</h2>
+            <table id="results-table">
+                <thead>
+                    <tr><th>Sel.</th><th>Controlador</th><th>Tipo</th><th>Configuración Sugerida</th></tr>
+                </thead>
+                <tbody id="results-tbody"></tbody>
+            </table>
+            <p id="no-results-msg" class="hidden">No se encontraron controladores compatibles con estos parámetros.</p>
+            <button id="confirm-selection-btn" class="hidden" disabled>Confirmar Selección y Ver Detalles</button>
+            
+            <div id="selection-details-container" class="hidden">
+                <div id="selected-controller-details">
+                    <h4>Controlador Seleccionado</h4>
+                    <div class="detail-item"><span>Corriente:</span><span id="selected-current">--</span> A</div>
+                    <div class="detail-item"><span>Potencia (12V):</span><span id="selected-power-12">--</span> W</div>
+                    <div class="detail-item"><span>Potencia (24V):</span><span id="selected-power-24">--</span> W</div>
+                    <div class="detail-item"><span>Potencia (48V):</span><span id="selected-power-48">--</span> W</div>
+                </div>
+                <div id="final-array-summary">
+                    <h4>Arreglo de Paneles Final</h4>
+                    <div class="detail-item"><span>Configuración:</span><span id="final-config">--</span></div>
+                    <div class="detail-item"><span>Paneles Totales:</span><span id="final-total-panels">--</span></div>
+                    <div class="detail-item"><span>Voltaje Arreglo (Voc):</span><span id="final-array-voc">--</span> V</div>
+                    <div class="detail-item"><span>Corriente (Isc):</span><span id="final-array-isc">--</span> A</div>
+                </div>
+                <div id="continue-buttons-container" style="grid-column: 1 / -1; display: grid; gap: 1rem; margin-top: 1rem;"></div>
+            </div>
+        </div>
+    </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const panelData = {
+        'poli_10': { name: "Policristalino 10W", wattage: 10, voc: 22, isc: 0.58, vmp: 18.36, imp: 0.54, nominalVoltage: 12 },
+        'poli_50': { name: "Policristalino 50W", wattage: 50, voc: 22.5, isc: 2.98, vmp: 18.2, imp: 2.75, nominalVoltage: 12 },
+        'poli_150': { name: "Policristalino 150W", wattage: 150, voc: 22.51, isc: 8.75, vmp: 18.4, imp: 8.15, nominalVoltage: 12 },
+        'mono_380': { name: "Monocristalino 380W", wattage: 380, voc: 48.71, isc: 10.05, vmp: 40.03, imp: 9.56, nominalVoltage: 24 },
+        'mono_450': { name: "Monocristalino 450W", wattage: 450, voc: 50, isc: 11.44, vmp: 41.4, imp: 10.87, nominalVoltage: 24 },
+        'mono_550': { name: "Monocristalino 550W", wattage: 550, voc: 49.9, isc: 13.9, vmp: 41.9, imp: 13.13, nominalVoltage: 24 },
+        'otro': { name: "Otro (Manual)", wattage: 0, voc: 30, isc: 10, vmp: 25, imp: 8, nominalVoltage: 12 }
+    };
+    
+    const controllerData = [
+        { id: 'pwm_5_55', current: 5, type: 'PWM', power: { 12: 60, 24: 120 }, maxVoc: 55 },
+        { id: 'pwm_10_50', current: 10, type: 'PWM', power: { 12: 350, 24: 700 }, maxVoc: 50 },
+        { id: 'pwm_10_55', current: 10, type: 'PWM', power: { 12: 120, 24: 240 }, maxVoc: 55 },
+        { id: 'pwm_20_50', current: 20, type: 'PWM', power: { 12: 500, 24: 1000 }, maxVoc: 50 },
+        { id: 'pwm_20_55', current: 20, type: 'PWM', power: { 12: 240, 24: 480 }, maxVoc: 55 },
+        { id: 'pwm_30_50', current: 30, type: 'PWM', power: { 12: 500, 24: 1000 }, maxVoc: 50 },
+        { id: 'pwm_30_55', current: 30, type: 'PWM', power: { 12: 360, 24: 720 }, maxVoc: 55 },
+        { id: 'pwm_40_50', current: 40, type: 'PWM', power: { 12: 520, 24: 1040 }, maxVoc: 50 },
+        { id: 'pwm_50_50', current: 50, type: 'PWM', power: { 12: 650, 24: 1300 }, maxVoc: 50 },
+        { id: 'pwm_60_50', current: 60, type: 'PWM', power: { 12: 1100, 24: 2200 }, maxVoc: 50 },
+        { id: 'mppt_10_75', current: 10, type: 'MPPT', power: { 12: 145, 24: 290 }, maxVoc: 75 },
+        { id: 'mppt_15_75', current: 15, type: 'MPPT', power: { 12: 220, 24: 440 }, maxVoc: 75 },
+        { id: 'mppt_15_100', current: 15, type: 'MPPT', power: { 12: 220, 24: 440 }, maxVoc: 100 },
+        { id: 'mppt_20_100a', current: 20, type: 'MPPT', power: { 12: 290, 24: 580 }, maxVoc: 100 },
+        { id: 'mppt_20_100b', current: 20, type: 'MPPT', power: { 12: 300, 24: 600 }, maxVoc: 100 },
+        { id: 'mppt_30_100', current: 30, type: 'MPPT', power: { 12: 440, 24: 880, 48: 1760 }, maxVoc: 100 },
+        { id: 'mppt_30_145', current: 30, type: 'MPPT', power: { 12: 450, 24: 900 }, maxVoc: 145 },
+        { id: 'mppt_50_100', current: 50, type: 'MPPT', power: { 12: 700, 24: 1400, 48: 2800 }, maxVoc: 100 },
+        { id: 'mppt_60_150', current: 60, type: 'MPPT', power: { 12: 800, 24: 1600, 48: 3200 }, maxVoc: 150 },
+        { id: 'mppt_80_150', current: 80, type: 'MPPT', power: { 12: 1250, 24: 2500, 48: 5000 }, maxVoc: 150 }
+    ];
+
+    const panelSelectEl = document.getElementById('panel-select');
+    const numPanelsInput = document.getElementById('num-panels');
+    const systemVoltageSelect = document.getElementById('system-voltage');
+    const calculateBtn = document.getElementById('calculate-btn');
+    const resultsSection = document.getElementById('results-section');
+    const resultsTbody = document.getElementById('results-tbody');
+    const errorDiv = document.getElementById('error-message');
+    const noResultsMsg = document.getElementById('no-results-msg');
+    const confirmBtn = document.getElementById('confirm-selection-btn');
+    
+    let compatibleControllers = [];
+    
+    function initializePage() {
+        populateSelect(panelSelectEl, panelData, "name");
+        
+        const numPanels = sessionStorage.getItem('numPanels');
+        const panelKey = sessionStorage.getItem('panelModelKey');
+
+        if (numPanels && panelKey && panelData[panelKey]) {
+            numPanelsInput.value = numPanels;
+            panelSelectEl.value = panelKey;
+            
+            if (panelKey === 'otro') {
+                panelData.otro.wattage = parseFloat(sessionStorage.getItem('panelWattage')) || 0;
+            }
+            updatePanelSpecsUI(panelData[panelKey]);
+        } else {
+            showError("No se encontraron datos de paneles. Por favor, vuelve al paso anterior.");
+            calculateBtn.disabled = true;
+        }
+    }
+    
+    function populateSelect(select, data, prop) {
+        select.innerHTML = '';
+        for (const key in data) {
+            const option = document.createElement('option');
+            option.value = key;
+            option.textContent = data[key][prop];
+            select.appendChild(option);
+        }
+    }
+
+    function updatePanelSpecsUI(panel) {
+        if (!panel) return;
+        document.getElementById('spec-wp').textContent = panel.wattage;
+        document.getElementById('spec-nominal-v').textContent = panel.nominalVoltage;
+        document.getElementById('panel-specs').classList.remove('hidden');
+    }
+    
+    calculateBtn.addEventListener('click', () => {
+        clearResults();
+        const numPanels = parseInt(numPanelsInput.value);
+        const voltage = parseInt(systemVoltageSelect.value);
+        const panel = panelData[panelSelectEl.value];
+
+        if (!voltage) { showError("Por favor, selecciona el voltaje del sistema."); return; }
+
+        compatibleControllers = [];
+        controllerData.forEach(ctrl => {
+            const result = checkCompatibility(panel, numPanels, voltage, ctrl);
+            if (result.isCompatible) {
+                compatibleControllers.push({ ...ctrl, ...result });
+            }
+        });
+        
+        renderTable();
+    });
+
+    function checkCompatibility(panel, numPanels, sysVoltage, controller) {
+        let maxSeries, config = {};
+        if (controller.type === 'PWM') {
+            if (sysVoltage % panel.nominalVoltage !== 0) return { isCompatible: false };
+            maxSeries = sysVoltage / panel.nominalVoltage;
+        } else {
+            if (!controller.power[sysVoltage]) return { isCompatible: false };
+            maxSeries = Math.floor(controller.maxVoc / panel.voc);
+        }
+
+        if (maxSeries < 1) return { isCompatible: false };
+        
+        config.series = maxSeries;
+        config.parallel = Math.ceil(numPanels / config.series);
+        config.totalPanels = config.series * config.parallel;
+        config.isc = panel.isc * config.parallel;
+        config.voc = panel.voc * config.series;
+        config.power = panel.wattage * config.totalPanels;
+        
+        if (config.voc > controller.maxVoc || config.isc > controller.current || (controller.power[sysVoltage] && config.power > controller.power[sysVoltage])) {
+            return { isCompatible: false };
+        }
+        
+        return { isCompatible: true, ...config };
+    }
+
+    function renderTable() {
+        resultsTbody.innerHTML = '';
+        if (compatibleControllers.length > 0) {
+            noResultsMsg.classList.add('hidden');
+            compatibleControllers.forEach((ctrl, index) => {
+                const row = resultsTbody.insertRow();
+                row.innerHTML = `
+                    <td><input type="radio" name="ctrl_select" value="${index}"></td>
+                    <td>${ctrl.current}A / ${ctrl.maxVoc}V</td>
+                    <td>${ctrl.type}</td>
+                    <td class="info-cell"><strong>${ctrl.series}S / ${ctrl.parallel}P</strong> (${ctrl.totalPanels} paneles)</td>
+                `;
+            });
+        } else {
+            noResultsMsg.classList.remove('hidden');
+        }
+        resultsSection.classList.remove('hidden');
+    }
+    
+    resultsTbody.addEventListener('change', e => {
+        if(e.target.name === 'ctrl_select') {
+            confirmBtn.disabled = false;
+            confirmBtn.classList.remove('hidden');
+            document.querySelectorAll('#results-tbody tr').forEach(r => r.classList.remove('selected-row'));
+            e.target.closest('tr').classList.add('selected-row');
+        }
+    });
+
+    confirmBtn.addEventListener('click', () => {
+        const selectedIndex = document.querySelector('input[name="ctrl_select"]:checked').value;
+        const finalSelection = compatibleControllers[selectedIndex];
+
+        document.getElementById('selected-current').textContent = finalSelection.current;
+        document.getElementById('selected-power-12').textContent = finalSelection.power[12] || 'N/A';
+        document.getElementById('selected-power-24').textContent = finalSelection.power[24] || 'N/A';
+        document.getElementById('selected-power-48').textContent = finalSelection.power[48] || 'N/A';
+        document.getElementById('final-config').textContent = `${finalSelection.series}S / ${finalSelection.parallel}P`;
+        document.getElementById('final-total-panels').textContent = finalSelection.totalPanels;
+        document.getElementById('final-array-voc').textContent = finalSelection.voc.toFixed(2);
+        document.getElementById('final-array-isc').textContent = finalSelection.isc.toFixed(2);
+        
+        sessionStorage.setItem('selectedController', JSON.stringify(finalSelection));
+        sessionStorage.setItem('systemVoltage', systemVoltageSelect.value);
+        const finalArraySummary = {
+            finalConfig: `${finalSelection.series}S / ${finalSelection.parallel}P`,
+            finalTotalPanels: finalSelection.totalPanels,
+            finalArrayVoc: finalSelection.voc.toFixed(2),
+            finalArrayIsc: finalSelection.isc.toFixed(2),
+            finalArrayPower: finalSelection.power
+        };
+        sessionStorage.setItem('finalArrayConfigSummary', JSON.stringify(finalArraySummary));
+
+        document.getElementById('selection-details-container').classList.remove('hidden');
+        
+        document.getElementById('continue-buttons-container').innerHTML = `
+            <a href="calculadora_banco_baterias.html" class="continue-button" style="background-color:#ffc107; color:#212529;">Continuar a Baterías →</a>
+            <a href="calculadora_seleccion_inversor.html" class="continue-button" style="background-color:#6c757d;">Continuar a Inversor →</a>
+        `;
+    });
+
+    function clearResults() {
+        resultsSection.classList.add('hidden');
+        errorDiv.classList.add('hidden');
+        confirmBtn.classList.add('hidden');
+        confirmBtn.disabled = true;
+        document.getElementById('selection-details-container').classList.add('hidden');
+    }
+    function showError(msg) {
+        errorDiv.textContent = msg;
+        errorDiv.classList.remove('hidden');
+    }
+
+    initializePage();
+});
+</script>
+</body>
+</html>

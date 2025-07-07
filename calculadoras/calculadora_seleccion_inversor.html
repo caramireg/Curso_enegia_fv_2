@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paso 5: Selector de Inversor Solar</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f0f4f8; color: #333; }
+        .container { background-color: #ffffff; padding: 1.5rem 2rem; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); max-width: 900px; margin: 2rem auto; }
+        h1, h2 { color: #1a237e; text-align: center; margin-bottom: 1.5rem; }
+        h2 { font-size: 1.25rem; margin-top: 1.5rem; color: #3f51b5; border-bottom: 1px solid #e0e0e0; padding-bottom: 0.5rem; text-align: left; }
+        label { display: block; margin-bottom: 0.4rem; font-weight: 600; color: #444; }
+        input[type="number"], select { width: 100%; padding: 0.6rem; margin-bottom: 1rem; border: 1px solid #ccc; border-radius: 4px; }
+        input:read-only, select:disabled { background-color: #f3f4f6; cursor: not-allowed; }
+        button { display: block; width: 100%; padding: 0.8rem; border-radius: 4px; font-size: 1.1rem; font-weight: bold; cursor: pointer; border: none; color: white; }
+        #find-inverter-btn { background-color: #007bff; }
+        .input-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.2rem; margin-bottom: 1.5rem; }
+        .input-hint { margin-top: -0.6rem; font-size: 0.75rem; color: #6c757d; }
+        .error-message { color: #dc3545; background-color: #f8d7da; padding: 0.75rem; border-radius: 4px; margin-top: 1rem; text-align: center; }
+        .hidden { display: none; }
+        .inverter-selection-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-top: 1rem; }
+        .inverter-card { border: 2px solid #eee; border-radius: 0.5rem; padding: 1rem; text-align: center; cursor: pointer; transition: all 0.2s ease; }
+        .inverter-card.selected { background-color: #e0f2fe; border-color: #3f51b5; transform: scale(1.02); }
+        .inverter-card h5 { font-size: 1.1rem; font-weight: 600; color: #1a237e; }
+        .detail-summary-grid { display: grid; grid-template-columns: 1fr; gap: 1.5rem; margin-top: 2rem; }
+        @media (min-width: 768px) { .detail-summary-grid { grid-template-columns: repeat(2, 1fr); } }
+        .summary-box { padding: 1rem; background-color: #e8eaf6; border-radius: 4px; }
+        .detail-item { display: flex; justify-content: space-between; }
+        .final-buttons-grid { margin-top: 2rem; display: grid; grid-template-columns: 1fr; gap: 1rem; }
+        @media (min-width: 600px) { .final-buttons-grid { grid-template-columns: repeat(2, 1fr); } }
+        .final-buttons-grid .button { display: block; text-align: center; padding: 0.8rem; border-radius: 0.5rem; font-weight: bold; color: white; text-decoration: none; }
+        .final-buttons-grid .button.save-report { background-color: #28a745; }
+        .final-buttons-grid .button.go-to-report { background-color: #059669; }
+        .back-button { display: inline-flex; align-items: center; padding: 0.5rem 1rem; background-color: #6b7280; color: white; border-radius: 0.5rem; text-decoration: none; font-weight: 500; margin-bottom: 1.5rem; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="calculadora_banco_baterias.html" class="back-button">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" width="24" height="24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" /></svg>
+            Volver a Baterías
+        </a>
+        <h1>Paso 5: Selector de Inversor</h1>
+        <p style="text-align: center; color: #4b5563; margin-top:-1rem; margin-bottom: 1.5rem;">Elige un inversor compatible con la potencia de tus electrodomésticos.</p>
+
+        <div class="section inputs">
+            <h2>Parámetros Requeridos</h2>
+            <div class="input-grid">
+                <div>
+                    <label for="peak-power-inv">Potencia Máxima Simultánea (W):</label>
+                    <input type="number" id="peak-power-inv" placeholder="Cargado desde Consumo" readonly>
+                    <p class="input-hint">Suma de potencia de tus electrodomésticos.</p>
+                </div>
+                <div>
+                    <label for="system-voltage-inv">Voltaje del Sistema (V):</label>
+                    <select id="system-voltage-inv" disabled>
+                        <option value="12">12 V</option><option value="24">24 V</option><option value="48">48 V</option>
+                    </select>
+                    <p class="input-hint">Voltaje de tu banco de baterías.</p>
+                </div>
+                 <div>
+                    <label for="surge-factor-inv">Factor de Arranque:</label>
+                    <input type="number" id="surge-factor-inv" value="1.5" step="0.1" min="1">
+                    <p class="input-hint">Para aparatos con motor (1.5 a 3 típico).</p>
+                </div>
+            </div>
+            <button id="find-inverter-btn">Buscar Inversores Compatibles</button>
+            <div id="error-message-inv" class="error-message hidden"></div>
+        </div>
+
+        <div id="inverter-results-section" class="section results hidden">
+            <h2>Inversores Sugeridos</h2>
+            <div id="inverter-selection-grid" class="inverter-selection-grid"></div>
+            <div id="selected-inverter-details-container" class="detail-summary-grid hidden">
+                <div class="summary-box">
+                    <h4>Inversor Seleccionado</h4>
+                    <div class="detail-item"><span>Modelo:</span><span id="selected-inverter-name-inv">--</span></div>
+                    <div class="detail-item"><span>Potencia Continua:</span><span id="selected-inverter-power-inv">--</span></div>
+                    <div class="detail-item"><span>Potencia Pico:</span><span id="selected-inverter-peak-inv">--</span></div>
+                </div>
+                <div class="summary-box">
+                    <h4>Requerimientos del Sistema</h4>
+                    <div class="detail-item"><span>Potencia Continua Req.:</span><span id="required-power-inv">--</span></div>
+                    <div class="detail-item"><span>Potencia Pico Req.:</span><span id="required-peak-power-inv">--</span></div>
+                </div>
+            </div>
+            <div id="final-buttons-container" class="final-buttons-grid hidden">
+                <button id="save-inverter-btn" class="button save-report">Guardar Inversor para Reporte</button>
+                <a href="../reporte_final.html" class="button go-to-report">Ver Reporte Final →</a>
+            </div>
+        </div>
+    </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const inverterData = [
+        // 12V
+        { id: 'inv_300_12', name: 'Inversor 300W 12V', voltage: 12, powerW: 300, peakPowerW: 600, type: 'Onda Pura' },
+        { id: 'inv_600_12', name: 'Inversor 600W 12V', voltage: 12, powerW: 600, peakPowerW: 1200, type: 'Onda Pura' },
+        { id: 'inv_1000_12', name: 'Inversor 1000W 12V', voltage: 12, powerW: 1000, peakPowerW: 2000, type: 'Onda Pura' },
+        { id: 'inv_1500_12', name: 'Inversor 1500W 12V', voltage: 12, powerW: 1500, peakPowerW: 3000, type: 'Onda Pura' },
+        // 24V
+        { id: 'inv_1000_24', name: 'Inversor 1000W 24V', voltage: 24, powerW: 1000, peakPowerW: 2000, type: 'Onda Pura' },
+        { id: 'inv_2000_24', name: 'Inversor 2000W 24V', voltage: 24, powerW: 2000, peakPowerW: 4000, type: 'Onda Pura' },
+        { id: 'inv_3000_24', name: 'Inversor 3000W 24V', voltage: 24, powerW: 3000, peakPowerW: 6000, type: 'Onda Pura' },
+        // 48V
+        { id: 'inv_3000_48', name: 'Inversor 3000W 48V', voltage: 48, powerW: 3000, peakPowerW: 6000, type: 'Onda Pura' },
+        { id: 'inv_5000_48', name: 'Inversor 5000W 48V', voltage: 48, powerW: 5000, peakPowerW: 10000, type: 'Onda Pura' },
+        // Onda Modificada (Opciones más económicas)
+        { id: 'inv_mod_1000_12', name: 'Inversor 1000W 12V (Modificada)', voltage: 12, powerW: 1000, peakPowerW: 2000, type: 'Onda Modificada' },
+        { id: 'inv_mod_2000_24', name: 'Inversor 2000W 24V (Modificada)', voltage: 24, powerW: 2000, peakPowerW: 4000, type: 'Onda Modificada' }
+    ];
+
+    const peakPowerInvInput = document.getElementById('peak-power-inv');
+    const systemVoltageInvSelect = document.getElementById('system-voltage-inv');
+    const surgeFactorInput = document.getElementById('surge-factor-inv');
+    const findInverterBtn = document.getElementById('find-inverter-btn');
+    const errorMessageInvP = document.getElementById('error-message-inv');
+    const inverterResultsSection = document.getElementById('inverter-results-section');
+    const inverterSelectionGrid = document.getElementById('inverter-selection-grid');
+    const selectedInverterDetailsContainer = document.getElementById('selected-inverter-details-container');
+    const finalButtonsContainer = document.getElementById('final-buttons-container');
+    
+    let selectedInverter = null;
+
+    function loadSessionData() {
+        const appliances = JSON.parse(sessionStorage.getItem('appliancesList') || '[]');
+        const peakLoad = appliances.reduce((sum, app) => sum + app.powerW, 0);
+        
+        if (peakLoad > 0) {
+            peakPowerInvInput.value = peakLoad;
+        } else {
+            errorMessageInvP.textContent = "No se encontró la lista de electrodomésticos. Por favor, empieza desde la Calculadora de Consumo.";
+            errorMessageInvP.classList.remove('hidden');
+            findInverterBtn.disabled = true;
+        }
+
+        const systemVoltage = sessionStorage.getItem('systemVoltage');
+        if (systemVoltage) {
+            systemVoltageInvSelect.value = systemVoltage;
+        }
+    }
+    
+    findInverterBtn.addEventListener('click', function() {
+        const peakLoad = parseFloat(peakPowerInvInput.value);
+        const systemVoltage = parseInt(systemVoltageInvSelect.value);
+        const surgeFactor = parseFloat(surgeFactorInput.value);
+
+        const requiredContinuousPower = peakLoad * 1.25; // 25% margen de seguridad
+        const requiredPeakPower = peakLoad * surgeFactor;
+
+        const compatibleInverters = inverterData.filter(inv => 
+            inv.voltage === systemVoltage && 
+            inv.powerW >= requiredContinuousPower && 
+            inv.peakPowerW >= requiredPeakPower
+        );
+        
+        inverterSelectionGrid.innerHTML = '';
+        if (compatibleInverters.length > 0) {
+            compatibleInverters.forEach(inv => {
+                const card = document.createElement('div');
+                card.className = 'inverter-card';
+                card.dataset.id = inv.id;
+                card.innerHTML = `
+                    <h5>${inv.name}</h5>
+                    <p>${inv.powerW}W Continuos</p>
+                    <p>${inv.type}</p>
+                `;
+                card.addEventListener('click', () => handleInverterSelection(inv, requiredContinuousPower, requiredPeakPower));
+                inverterSelectionGrid.appendChild(card);
+            });
+        } else {
+            inverterSelectionGrid.innerHTML = `<p class="text-center text-red-500 col-span-full">No se encontraron inversores. Es posible que tu consumo sea muy alto para este voltaje de sistema.</p>`;
+        }
+        inverterResultsSection.classList.remove('hidden');
+    });
+
+    function handleInverterSelection(inverter, requiredPower, requiredPeak) {
+        selectedInverter = inverter;
+        inverterSelectionGrid.querySelectorAll('.inverter-card').forEach(card => {
+            card.classList.toggle('selected', card.dataset.id === inverter.id);
+        });
+        
+        document.getElementById('selected-inverter-name-inv').textContent = inverter.name;
+        document.getElementById('selected-inverter-power-inv').textContent = `${inverter.powerW} W`;
+        document.getElementById('selected-inverter-peak-inv').textContent = `${inverter.peakPowerW} W`;
+        
+        document.getElementById('required-power-inv').textContent = `${Math.round(requiredPower)} W`;
+        document.getElementById('required-peak-power-inv').textContent = `${Math.round(requiredPeak)} W`;
+
+        selectedInverterDetailsContainer.classList.remove('hidden');
+        finalButtonsContainer.classList.remove('hidden');
+    }
+
+    document.getElementById('save-inverter-btn').addEventListener('click', function() {
+        if (selectedInverter) {
+            sessionStorage.setItem('selectedInverterConfig', JSON.stringify(selectedInverter));
+            errorMessageInvP.textContent = `¡Guardado! Se ha seleccionado el inversor "${selectedInverter.name}".`;
+            errorMessageInvP.style.backgroundColor = '#dcfce7';
+            errorMessageInvP.style.color = '#166534';
+            errorMessageInvP.classList.remove('hidden');
+            setTimeout(() => errorMessageInvP.classList.add('hidden'), 3000);
+        }
+    });
+
+    loadSessionData();
+});
+</script>
+</body>
+</html>
