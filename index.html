@@ -48,7 +48,7 @@
 
     <main class="container mx-auto px-4 py-8" id="app-root">
         
-        <!-- SECCIÓN DE DESCRIPCIÓN DEL CURSO AÑADIDA -->
+        <!-- SECCIÓN DE DESCRIPCIÓN DEL CURSO -->
         <div class="bg-white rounded-lg shadow-md p-6 mb-8">
             <h2 class="text-3xl font-bold text-center text-indigo-800 mb-4">¡Convierte tu Curiosidad en Energía!</h2>
             <p class="text-center text-gray-600 mb-6">¿Te apasiona la tecnología y quieres ser parte de la solución para un planeta más limpio? Este no es un curso de energía solar como los demás. Olvídate de las clases aburridas. Aquí, no solo vas a aprender, vas a **hacer**.</p>
@@ -56,11 +56,11 @@
             <div class="grid md:grid-cols-3 gap-6 text-center">
                 <div>
                     <h3 class="font-bold text-lg text-blue-600">Aprende Jugando</h3>
-                    <p class="text-sm text-gray-500">Gana Puntos de Energía (PE) y desbloquea logros mientras avanzas en tu misión para convertirte en un Héroe Solar.</p>
+                    <p class="text-sm text-gray-500">Gana Puntos de Energía (PE) y sigue tu progreso en un tablero visual mientras te conviertes en un Héroe Solar.</p>
                 </div>
                 <div>
                     <h3 class="font-bold text-lg text-blue-600">Herramientas Reales</h3>
-                    <p class="text-sm text-gray-500">Usa calculadoras y simuladores interactivos para diseñar y experimentar con sistemas fotovoltaicos como un verdadero profesional.</p>
+                    <p class="text-sm text-gray-500">Usa calculadoras y simuladores interactivos para diseñar y experimentar con sistemas fotovoltaicos como un profesional.</p>
                 </div>
                 <div>
                     <h3 class="font-bold text-lg text-blue-600">Diseñado para Ti</h3>
@@ -144,12 +144,10 @@
             card.className = 'kanban-card';
             card.innerHTML = `<h4 class="font-bold">${module.title}</h4>`;
             card.onclick = () => {
-                if (module.status !== 'done') {
-                    const moduleInState = gameState.modules.find(m => m.id === module.id);
-                    if (moduleInState) {
-                        moduleInState.status = 'doing';
-                        saveGameState();
-                    }
+                const moduleInState = gameState.modules.find(m => m.id === module.id);
+                if (moduleInState && moduleInState.status !== 'done') {
+                    moduleInState.status = 'doing';
+                    saveGameState();
                 }
             };
 
@@ -173,3 +171,4 @@
 </script>
 </body>
 </html>
+
